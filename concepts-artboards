@@ -2,7 +2,8 @@
 # concepts-boards - split Concepts SGV file into multiple PDF files
 
 # Copyright (c) 2021, Dave Bayer
-# The Unlicence <http://unlicense.org/>
+# https://github.com/Syzygies/concepts-artboards/
+# The MIT License
 
 # Ox handles XML documents
 # http://www.ohler.com/ox/
