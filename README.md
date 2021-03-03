@@ -14,6 +14,8 @@ This script is in a preliminary state, but it works well for my use cases: I am 
 
 `concepts-artboards` requires a Ruby installation. It uses the [Ox](http://www.ohler.com/ox/) gem; one will need to install Ox via the command `gem install ox`. Ox is a lightweight, fast XML library, and this script provides a good example of its use. `concepts-artboards` also calls two command line programs that I've installed on a Mac using [homebrew](https://brew.sh/): `svg2pdf` and `gs`.
 
+I scale my Concepts canvases using points, bearing in mind that a Concepts point is 132 dpi, not the industry standard 72 dpi. The `concepts-artboards` call to `svg2pdf` is scaled based on this convention. (One imagines that at some point Concepts engineers got their hands on a 132 dpi iPhone.) If one ever does rely on Concepts to output directly to PDF, this is the only predictable unit for obtaining reliably scaled PDF files. In the digital realm, scale hardly matters. One would think that students would know to scale a PDF file to fit a page, before printing. The standard refrain for this in my profession is _"Have you ever taught calculus?"_ I want to produce PDF documents that print correctly by default.
+
 ---
 
 Concepts is my favorite iPad app for digital sketching. During the pandemic, many of my colleagues have been teaching via Zoom using [Notability](https://www.gingerlabs.com/). One easily gets frustrated with Notability's limited support for algorithmic drawing. At the same time, Notability is friction-free for what it does well. Nearly every advanced drawing app botches freehand drawing, and one's handwriting suffers. One can reject half the app candidates out there by trying to dot an "i".
