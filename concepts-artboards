@@ -1,0 +1,171 @@
+#!/usr/bin/env ruby
+# concepts-boards - split Concepts SGV file into multiple PDF files
+
+# Copyright (c) 2021, Dave Bayer
+# The Unlicence <http://unlicense.org/>
+
+# Ox handles XML documents
+# http://www.ohler.com/ox/
+require 'ox'
+
+if ARGV.length != 3
+  puts "concepts-boards svg pdf dir"
+  exit
+end
+
+# svg - input SVG file exported from Concepts
+# pdf - output PDF file, all boards
+# dir - output directory, individual boards
+svg, pdf, dir = ARGV
+
+# snap - round boards to multiples of snap
+snap = 8
+
+# boards layer defines output rectangles
+boards_layer = 'Artboards'
+boards_error = true
+
+# Labels layer optionally defines output file names
+labels_layer = 'Labels'
+labels_error = false
+
+#----------------------------------------------------------------
+# point { :x => value, :y => value }
+# interval { :min => value, :max => value, :gap => value }
+# rectangle { :x => interval, :y => interval }
+
+# do two intervals intersect?
+def intervals_meet? (a, b)
+  [a[:max], b[:max]].min >= [a[:min], b[:min]].max
+end
+
+# does rectangle contain point?
+def contains? (r, p)
+  [:x,:y].all? do |k|
+    r[k][:min] <= p[k] && r[k][:max] >= p[k]
+  end
+end
+
+# sort rectangles left to right, row by row
+def rectangle_sort (xs)
+  if xs.length > 1
+    r = xs.min { |a,b| a[:y][:min] <=> b[:y][:min] }
+    ys, zs = xs.partition { |a| intervals_meet? a[:y], r[:y] }
+    ys.sort { |a,b| a[:x][:min] <=> b[:x][:min] } + rectangle_sort(zs)
+  else
+    xs
+  end
+end
+
+# find bounding rectangles for draw string
+def draw_bounds (draw, snap)
+  coords = []
+  draw.scan(/([a-zA-Z](?: [0-9.]+)*)+/).each do |seg|
+    cmd = seg[0][0]
+    xy = seg[0].split[1..].map {|x| x.to_f}
+    case cmd
+    when /[LMQ]/
+      coords << xy[-2..]
+    when 'Z'
+    else
+      puts "draw_bounds: no case for %s" % cmd
+    end
+  end
+  coords.transpose.zip([:x,:y]).map do |x, k|
+    min, max = x.minmax
+    min = min.round
+    max = min + [1, snap*((max-min)/snap).round].max
+    [k, { :min => min, :max => max, :gap => max - min }]
+  end.to_h
+end
+
+#----------------------------------------------------------------
+
+# search pattern for Ox
+def layer_pattern (layer)
+  "svg/g[@id=%s]" % layer
+end
+
+# exit on fatal error
+def fatal (message)
+  puts "\nFatal error\n%s\n\n" % message
+  exit false
+end
+
+# find layer in doc
+def get_layer (doc, layer, error)
+  elems = doc.locate(layer_pattern layer)
+  if elems.empty?
+    if error
+      fatal "Layer not found: %s" % layer
+    else
+      return nil
+    end
+  else
+    return elems.first
+  end
+end
+
+# remove layer from doc
+def remove_layer (doc, layer)
+  doc.remove_children_by_path(layer_pattern layer)
+end
+
+#----------------------------------------------------------------
+
+# load SVG file
+doc = Ox.load_file svg
+
+# extract information layers
+boards_elem = get_layer doc, boards_layer, boards_error
+labels_elem = get_layer doc, labels_layer, labels_error
+remove_layer doc, boards_layer
+remove_layer doc, labels_layer
+
+# find labels
+labels = labels_elem.locate('?[@transform]').map do |label|
+  point = label[:transform].scan(/[0-9.]+/).last(2).zip([:x,:y]).map do |x, k|
+    [k, x.to_f ]
+  end.to_h
+  name = label.locate('text/tspan').map { |x| x.text }.first
+  point[:name] = name
+  point if name
+end.compact
+
+# find boards
+boards = boards_elem.locate('*/path/@d').map do |frame|
+  draw_bounds(frame, snap)
+end
+
+# output each board
+page = 1
+pages = ''
+%x( mkdir -p #{dir} )
+rectangle_sort(boards).each do |board|
+  label = labels.find { |point| contains? board, point }
+  if label
+    name = label[:name]
+  else
+    name = page
+    page += 1
+  end
+
+  min_x  = board[:x][:min]
+  min_y  = board[:y][:min]
+  width  = board[:x][:gap]
+  height = board[:y][:gap]
+
+  doc.svg[:width] = "%spt" % width
+  doc.svg[:height] = "%spt" % height
+  doc.svg[:viewBox] = "%s %s %s %s" % [min_x, min_y, width, height]
+
+  board_svg = "%s/%s.svg" % [dir, name]
+  board_pdf = "%s/%s.pdf" % [dir, name]
+  pages << " %s" % board_pdf
+
+  Ox.to_file board_svg, doc
+  %x( svg2pdf --scale=0.36 #{board_svg} #{board_pdf} && rm #{board_svg} )
+end
+
+# combine into merged pdf
+%x( gs -q -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -sOutputFile=#{pdf} #{pages} )
