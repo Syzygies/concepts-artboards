@@ -2,6 +2,8 @@
 
 `concepts-artboards` is a Ruby script to convert [Concepts](https://concepts.app/en/) SVG exports into combined and individual PDF files.
 
+There is a Reddit discussion of this script [here](https://www.reddit.com/r/ConceptsApp/comments/lwl8r5/conceptsartboards_a_ruby_script_for_converting/).
+
 This is a preliminary release. I haven't added command line options yet, for example. If you can write your own scripts, I just saved you a day; modify what I've done here. If not, you might want to wait for a more polished release.
 
 `concepts-artboards canvas.svg canvas.pdf pdf` converts all artboards in `canvas.svg` into the PDF document `canvas.pdf`, and outputs each individual artboard as a PDF in the directory `pdf`.
