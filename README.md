@@ -8,7 +8,7 @@ This is a preliminary release. I haven't added command line options yet, for exa
 
 `concepts-artboards canvas.svg canvas.pdf pdf` converts all artboards in `canvas.svg` into the PDF document `canvas.pdf`, and outputs each individual artboard as a PDF in the directory `pdf`.
 
-`concepts-artboards` looks for rectangles in an "Artboard" layer to define artboards for output, and looks for text in a "Labels" layer to optionally name these output files. These layers are then deleted from the output. Any text positioned within an artboard rectangle names that artboard; artboards are otherwise numbered sequentially left to right, row by row. This is also the output order (included the named artboards) for the combined PDF file.
+`concepts-artboards` looks for rectangles in an "Artboards" layer to define artboards for output, and looks for text in a "Labels" layer to optionally name these output files. These layers are then deleted from the output. Any text positioned within an artboard rectangle names that artboard; artboards are otherwise numbered sequentially left to right, row by row. This is also the output order (included the named artboards) for the combined PDF file.
 
 The code attempts to degenerate gracefully. One is advised to use rectangles to define artboards, but any stroke will result in its bounding box. One is advised to arrange artboards in an orderly fashion, but the code will make reasonable choices for randomly placed artboards. A certain tolerance is necessary here, because Concepts does a poor job of placing rectangles exactly, and a user shouldn't face such a requirement.
 
