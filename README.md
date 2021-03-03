@@ -18,6 +18,12 @@ I scale my Concepts canvases using points, bearing in mind that a Concepts point
 
 ---
 
+The `Examples` directory contains a Concepts native file `Test.concept` that one can import back into Concepts to confirm my description of using layers to define artboards. `Test-Canvas.pdf` has been exported directly by Concepts, and gives a view of the artboard layout. `Test.svg` is the SVG file exported from this canvas, and `Test.pdf` is the output PDF file containing a page per artboard. The `PDF` directory contains an output PDF file for each individual artboard. One can run the shell script `Test.sh` to recreate these output files.
+
+`Counting.pdf` is a production example, lecture notes for a math class. `Counting-Canvas.pdf` has been exported directly by Concepts, and gives a view of the artboard layout.
+
+---
+
 Concepts is my favorite iPad app for digital sketching. During the pandemic, many of my colleagues have been teaching via Zoom using [Notability](https://www.gingerlabs.com/). One easily gets frustrated with Notability's limited support for algorithmic drawing. At the same time, Notability is friction-free for what it does well. Nearly every advanced drawing app botches freehand drawing, and one's handwriting suffers. One can reject half the app candidates out there by trying to dot an "i".
 
 Concepts is the most powerful app I know that gets freehand drawing right, with little fuss. Its capabilities are intoxicating. At the same time, I could write a book-length treatise on what frustrates me about Concepts. For one example of many, its "snap to grid" is nearly unusable. Nevertheless, until I write my own app (a drawing editor that is completely programmable using drawings, akin to how Emacs relies on Lisp), Concepts is my drawing app of choice.
