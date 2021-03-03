@@ -8,7 +8,7 @@ This is a preliminary release. I haven't added command line options yet, for exa
 
 `concepts-artboards` looks for rectangles in an "Artboard" layer to define artboards for output, and looks for text in a "Labels" layer to optionally name these output files. These layers are then deleted from the output. Any text positioned within an artboard rectangle names that artboard; artboards are otherwise numbered sequentially left to right, row by row. This is also the output order (included the named artboards) for the combined PDF file.
 
-The code attempts to degenerate gracefully. One is advised to use rectangles to define artboards, but any stroke will result in its bounding box. One is advised to arrange artboards in an orderly fashion, but the code will make reasonable choices for randomly placed artboards. A certain tolerance is essential here, because Concepts does a poor job of placing rectangles exactly, and a user shouldn't face such a requirement.
+The code attempts to degenerate gracefully. One is advised to use rectangles to define artboards, but any stroke will result in its bounding box. One is advised to arrange artboards in an orderly fashion, but the code will make reasonable choices for randomly placed artboards. A certain tolerance is necessary here, because Concepts does a poor job of placing rectangles exactly, and a user shouldn't face such a requirement.
 
 This script is in a preliminary state, but it works well for my use cases: I am a math professor. I can create math notes either for personal use or for teaching, using an infinite Concepts canvas. One Concepts canvas can automatically spawn many PDF illustrations for a LaTex document such as a book project.
 
