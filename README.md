@@ -2,29 +2,61 @@
 
 `concepts-artboards` is a Ruby script to convert [Concepts](https://concepts.app/en/) SVG exports into combined and individual PDF files.
 
+This is an initial release; it has only been tested for my use cases. I am a math professor. From an infinite Concepts canvas, I use `concepts-artboards` to create math notes for personal use and for teaching, and to spawn PDF illustrations for a LaTex document such as a book project.
+
 There is a Reddit discussion of this script [here](https://www.reddit.com/r/ConceptsApp/comments/lwl8r5/conceptsartboards_a_ruby_script_for_converting/).
 
-This is a preliminary release. I haven't added command line options yet, for example. If you can write your own scripts, I just saved you a day; modify what I've done here. If not, you might want to wait for a more polished release.
+### Usage
+    concepts-artboards -i svg -d dir [-o pdf] [options]
 
-`concepts-artboards canvas.svg canvas.pdf pdf` converts all artboards in `canvas.svg` into the PDF document `canvas.pdf`, and outputs each individual artboard as a PDF in the directory `pdf`.
+    Required arguments:
 
-`concepts-artboards` looks for rectangles in an "Artboards" layer to define artboards for output, and looks for text in a "Labels" layer to optionally name these output files. These layers are then deleted from the output. Any text positioned within an artboard rectangle names that artboard; artboards are otherwise numbered sequentially left to right, row by row. This is also the output order (included the named artboards) for the combined PDF file.
+        -i, --input      input SVG file
+        -d, --directory  scratch directory for intermediate files
+
+    Output options:
+
+        -o, --output     output PDF file
+        -l, --labels     name of optional Labels layer
+        -p, --pdf        keep individual artboard PDF files
+        -s, --svg        keep individual artboard SVG files
+
+    Other options:
+
+        -h, --help       
+        -v, --version    
+
+        -a, --artboards  name of Artboards layer (default: Artboards)
+        -r, --remove     other layers to remove from output
+        -q, --quantum    points multiple for rounding artboards (default: 8)
+
+
+`concepts-artboards` looks for rectangles in an Artboards layer to define artboards for output, and looks for text in an optional Labels layer to name these output files. These layers are then deleted from the output. Any text in the Labels layer that is positioned within an artboard rectangle names that artboard; artboards are otherwise numbered sequentially left to right, row by row. This is also the output order (included the named artboards) for the combined PDF file.
+
+The individual SVG and PDF artboard files can be kept or discarded. If these files are discarded, and `concepts-artboards` created the scratch directory, then it will also remove this directory. The `--output` option merges these individual files into a single document.
+
+For example,
+
+    concepts-artboards \
+      --input canvas.svg \
+      --output canvas.pdf \
+      --directory scratch \
+      --pdf \
+
+will convert all artboards in `canvas.svg` into the single output file `canvas.pdf`, keeping the intermediate PDF files.
+
+`concepts-artboards` requires a Ruby installation. It uses the [Ox](http://www.ohler.com/ox/) gem; one will need to install Ox via the command `gem install ox`. Ox is a lightweight, fast XML library, and this script provides a good example of its use. `concepts-artboards` also calls two command line programs that can be installed on a Mac using [homebrew](https://brew.sh/): `svg2pdf` and `gs`.
 
 The code attempts to degenerate gracefully. One is advised to use rectangles to define artboards, but any stroke will result in its bounding box. One is advised to arrange artboards in an orderly fashion, but the code will make reasonable choices for randomly placed artboards. A certain tolerance is necessary here, because users shouldn't be required to place rectangles exactly, and doing so is tricky in Concepts.
 
-This script works well for my use cases: I am a math professor. I can create math notes either for personal use or for teaching, using an infinite Concepts canvas. One Concepts canvas can automatically spawn many PDF illustrations for a LaTex document such as a book project.
-
-`concepts-artboards` requires a Ruby installation. It uses the [Ox](http://www.ohler.com/ox/) gem; one will need to install Ox via the command `gem install ox`. Ox is a lightweight, fast XML library, and this script provides a good example of its use. `concepts-artboards` also calls two command line programs that I've installed on a Mac using [homebrew](https://brew.sh/): `svg2pdf` and `gs`.
-
-I scale my Concepts canvases using points, bearing in mind that Concepts points are 132 per inch, not 72 per inch as is standard in many graphics applications. The `concepts-artboards` call to `svg2pdf` is scaled based on this convention. (One imagines that at some point Concepts engineers got their hands on a 132 dpi iPhone.) If one ever does rely on Concepts to output directly to PDF, points is the only predictable unit for obtaining reliably scaled PDF files. In the digital realm, scale hardly matters. One would think that students would know to scale a PDF file to fit a page, before printing. The standard refrain for this in my profession is _"Have you ever taught calculus?"_ I want to produce PDF documents that print correctly by default.
-
----
+I recommend scaling Concepts canvases using points, bearing in mind that Concepts points are 132 per inch, not 72 per inch as is standard in many graphics applications. The `concepts-artboards` call to `svg2pdf` is scaled based on this convention. When one does rely on Concepts to output directly to PDF, points is the only predictable unit for obtaining reliably scaled PDF files.
+### Examples
 
 The `Examples` directory contains a Concepts native file `Test.concept` that one can import back into Concepts to confirm my description of using layers to define artboards. `Test-Canvas.pdf` has been exported directly by Concepts, and gives a view of the artboard layout. `Test.svg` is the SVG file exported from this canvas, and `Test.pdf` is the output PDF file containing a page per artboard. The `PDF` directory contains an output PDF file for each individual artboard. One can run the shell script `Test.sh` to recreate these output files.
 
 `Counting.pdf` is a production example, lecture notes for a math class. `Counting-Canvas.pdf` has been exported directly by Concepts, and gives a view of the artboard layout.
 
----
+### Discussion
 
 Concepts is my favorite iPad app for digital sketching. During the pandemic, many of my colleagues have been teaching via Zoom using [Notability](https://www.gingerlabs.com/). One easily gets frustrated with Notability's limited support for algorithmic drawing. At the same time, Notability is friction-free for what it does well. Nearly every advanced drawing app botches freehand drawing, and one's handwriting suffers. One can reject half the app candidates out there by trying to dot an "i".
 

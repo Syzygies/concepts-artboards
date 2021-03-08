@@ -1,34 +1,67 @@
 #!/usr/bin/env ruby
-# concepts-boards - split Concepts SGV file into multiple PDF files
+# concepts-artboards - split Concepts SGV file into multiple PDF files
 
 # Copyright (c) 2021, Dave Bayer
-# https://github.com/Syzygies/concepts-artboards/
-# The MIT License
+# All rights reserved
 
 # Ox handles XML documents
 # http://www.ohler.com/ox/
 require 'ox'
 
-if ARGV.length != 3
-  puts "concepts-boards svg pdf dir"
-  exit
+# Slop handles command line arguments
+# https://github.com/leejarvis/slop
+require 'slop'
+
+require 'fileutils'
+
+version = 'concepts-artboards 0.2 (2021-03-08)'
+
+# exit on fatal error
+def fatal (message)
+  puts "\nFatal error\n%s\n\n" % message
+  exit false
+end
+
+# read command line options
+begin
+  options = Slop.parse do |o|
+    o.banner = "\nconcepts-artboards -i svg -d dir [-o pdf] [options]"
+    o.separator "\nRequired arguments:\n"
+    o.string '-i', '--input', 'input SVG file', required: true
+    o.string '-d', '--directory', 'scratch directory for intermediate files', required: true
+    o.separator "\nOutput options:\n"
+    o.string '-o', '--output', 'output PDF file'
+    o.string '-l', '--labels', 'name of optional Labels layer'
+    o.bool '-p', '--pdf', 'keep individual artboard PDF files'
+    o.bool '-s', '--svg', 'keep individual artboard SVG files'
+    o.separator "\nOther options:\n"
+    o.on '-h', '--help' do puts o; exit; end
+    o.on '-v', '--version' do puts version; exit; end
+    o.separator ''
+    o.string '-a', '--artboards',
+    'name of Artboards layer (default: Artboards)'
+    o.array '-r', '--remove', 'other layers to remove from output'
+    o.integer '-q', '--quantum', 'points multiple for rounding artboards (default: 8)'
+  end
+rescue => error
+  fatal error
 end
 
 # svg - input SVG file exported from Concepts
-# pdf - output PDF file, all boards
 # dir - output directory, individual boards
-svg, pdf, dir = ARGV
+# pdf - output PDF file, all boards
+svg = options[:input]
+dir = options[:directory]
+pdf = options[:output]
 
 # snap - round boards to multiples of snap
-snap = 8
+snap = options[:quantum] || 8
 
 # boards layer defines output rectangles
-boards_layer = 'Artboards'
-boards_error = true
+boards_layer = options[:artboards] || 'Artboards'
 
 # Labels layer optionally defines output file names
-labels_layer = 'Labels'
-labels_error = false
+labels_layer = options[:labels]
 
 #----------------------------------------------------------------
 # point { :x => value, :y => value }
@@ -87,29 +120,23 @@ def layer_pattern (layer)
   "svg/g[@id=%s]" % layer
 end
 
-# exit on fatal error
-def fatal (message)
-  puts "\nFatal error\n%s\n\n" % message
-  exit false
-end
-
 # find layer in doc
-def get_layer (doc, layer, error)
-  elems = doc.locate(layer_pattern layer)
-  if elems.empty?
-    if error
+def get_layer (doc, layer)
+  if layer
+    elems = doc.locate(layer_pattern layer)
+    if elems.empty?
       fatal "Layer not found: %s" % layer
-    else
-      return nil
+     else
+      return elems.first
     end
   else
-    return elems.first
+    return nil
   end
 end
 
 # remove layer from doc
 def remove_layer (doc, layer)
-  doc.remove_children_by_path(layer_pattern layer)
+  doc.remove_children_by_path(layer_pattern layer) if layer
 end
 
 #----------------------------------------------------------------
@@ -118,29 +145,42 @@ end
 doc = Ox.load_file svg
 
 # extract information layers
-boards_elem = get_layer doc, boards_layer, boards_error
-labels_elem = get_layer doc, labels_layer, labels_error
-remove_layer doc, boards_layer
-remove_layer doc, labels_layer
+boards_elem = get_layer doc, boards_layer
+labels_elem = get_layer doc, labels_layer
+
+# remove layers not intended for output
+options[:remove].append(boards_layer, labels_layer).each do |layer|
+  remove_layer doc, layer
+end
 
 # find labels
-labels = labels_elem.locate('?[@transform]').map do |label|
-  point = label[:transform].scan(/[0-9.]+/).last(2).zip([:x,:y]).map do |x, k|
-    [k, x.to_f ]
-  end.to_h
-  name = label.locate('text/tspan').map { |x| x.text }.first
-  point[:name] = name
-  point if name
-end.compact
+if labels_elem
+  labels = labels_elem.locate('?[@transform]').map do |label|
+    point = label[:transform].scan(/[0-9.]+/).last(2).zip([:x,:y]).map do |x, k|
+      [k, x.to_f ]
+    end.to_h
+    name = label.locate('text/tspan').map { |x| x.text }.first
+    point[:name] = name
+    point if name
+  end.compact
+else
+  labels = []
+end
 
 # find boards
 boards = boards_elem.locate('*/path/@d').map do |frame|
   draw_bounds(frame, snap)
 end
 
+# create scratch directory if necessary
+dir_exists = Dir.exist?(dir)
+FileUtils.mkdir_p dir unless dir_exists
+
 # output each board
 page = 1
 pages = ''
+svg_list = []
+pdf_list = []
 %x( mkdir -p #{dir} )
 rectangle_sort(boards).each do |board|
   label = labels.find { |point| contains? board, point }
@@ -160,13 +200,18 @@ rectangle_sort(boards).each do |board|
   doc.svg[:height] = "%spt" % height
   doc.svg[:viewBox] = "%s %s %s %s" % [min_x, min_y, width, height]
 
-  board_svg = "%s/%s.svg" % [dir, name]
-  board_pdf = "%s/%s.pdf" % [dir, name]
-  pages << " %s" % board_pdf
+  svg_list << board_svg = "%s/%s.svg" % [dir, name]
+  pdf_list << board_pdf = "%s/%s.pdf" % [dir, name]
+  pages << ' ' << board_pdf
 
   Ox.to_file board_svg, doc
-  %x( svg2pdf --scale=0.36 #{board_svg} #{board_pdf} && rm #{board_svg} )
+  %x( svg2pdf --scale=0.36 #{board_svg} #{board_pdf} )
 end
 
 # combine into merged pdf
-%x( gs -q -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -sOutputFile=#{pdf} #{pages} )
+%x( gs -q -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -sOutputFile=#{pdf} #{pages} ) if pdf
+
+# clean up
+svg_list.each { |f| File.delete f } unless options[:svg]
+pdf_list.each { |f| File.delete f } unless options[:pdf]
+Dir.rmdir dir unless dir_exists or not Dir.empty? dir
