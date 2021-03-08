@@ -43,7 +43,7 @@ For example,
       --directory scratch \
       --pdf \
 
-will convert all artboards in `canvas.svg` into the single output file `canvas.pdf`, keeping the intermediate PDF files.
+will convert all artboards in `canvas.svg` into the combined output file `canvas.pdf`, keeping the intermediate PDF files.
 
 `concepts-artboards` requires a Ruby installation. It uses the [Ox](http://www.ohler.com/ox/) gem; one will need to install Ox via the command `gem install ox`. Ox is a lightweight, fast XML library, and this script provides a good example of its use. `concepts-artboards` also calls two command line programs that can be installed on a Mac using [homebrew](https://brew.sh/): `svg2pdf` and `gs`.
 
