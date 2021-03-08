@@ -206,14 +206,14 @@ rectangle_sort(boards).each do |board|
 
   svg_list << board_svg = "%s/%s.svg" % [dir, name]
   pdf_list << board_pdf = "%s/%s.pdf" % [dir, name]
-  pages << ' ' << board_pdf
+  pages << " '%s'" % board_pdf
 
   Ox.to_file board_svg, doc
-  %x( svg2pdf --scale=0.36 #{board_svg} #{board_pdf} )
+  %x( svg2pdf --scale=0.36 '#{board_svg}' '#{board_pdf}' )
 end
 
 # combine into merged pdf
-%x( gs -q -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -sOutputFile=#{pdf} #{pages} ) if pdf
+%x( gs -q -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -sOutputFile='#{pdf}' #{pages} ) if pdf
 
 # clean up
 svg_list.each { |f| File.delete f } unless options[:svg]
