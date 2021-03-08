@@ -27,10 +27,10 @@ begin
   options = Slop.parse do |o|
     o.banner = "\nconcepts-artboards -i svg -d dir [-o pdf] [options]"
     o.separator "\nRequired arguments:\n"
-    o.string '-i', '--input', 'input SVG file', required: true
+    o.string '-i', '--input', 'input SVG file, exported from Concepts', required: true
     o.string '-d', '--directory', 'scratch directory for intermediate files', required: true
     o.separator "\nOutput options:\n"
-    o.string '-o', '--output', 'output PDF file'
+    o.string '-o', '--output', 'output combined PDF file'
     o.string '-l', '--labels', 'name of optional Labels layer'
     o.bool '-p', '--pdf', 'keep individual artboard PDF files'
     o.bool '-s', '--svg', 'keep individual artboard SVG files'
@@ -45,6 +45,10 @@ begin
   end
 rescue => error
   fatal error
+end
+
+if (args = options.arguments).any?
+  fatal "Unused arguments: " + args.join(' ')
 end
 
 # svg - input SVG file exported from Concepts
