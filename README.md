@@ -52,7 +52,7 @@ The code attempts to degenerate gracefully. One is advised to use rectangles to 
 I recommend scaling Concepts canvases using points, bearing in mind that Concepts points are 132 per inch, not 72 per inch as is standard in many graphics applications. The `concepts-artboards` call to `svg2pdf` is scaled based on this convention. When one does use Concepts to output directly to PDF, points is the only predictable unit for obtaining reliably scaled PDF files.
 ### Examples
 
-The `Examples` directory contains a Concepts native file `Test.concept` that one can import back into Concepts to confirm my description of using layers to define artboards. `Test-Canvas.pdf` has been exported directly by Concepts, and gives a view of the artboard layout. `Test.svg` is the SVG file exported from this canvas, and `Test.pdf` is the output PDF file containing a page per artboard. The `PDF` directory contains an output PDF file for each individual artboard. One can run the shell script `Test.sh` to recreate these output files.
+The `Examples` directory contains a Concepts native file `Test.concept` that one can import back into Concepts to confirm my description of using layers to define artboards. `Test-Canvas.pdf` has been exported directly by Concepts, and gives a view of the artboard layout. `Test.svg` is the SVG file exported from this canvas, and `Test.pdf` is the output PDF file containing a page per artboard. The `pdf` directory contains an output PDF file for each individual artboard. One can run the shell script `Test.sh` to recreate these output files.
 
 `Counting.pdf` is a production example, lecture notes for a math class. `Counting-Canvas.pdf` has been exported directly by Concepts, and gives a view of the artboard layout.
 
