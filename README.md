@@ -41,7 +41,7 @@ For example,
       --input canvas.svg \
       --output canvas.pdf \
       --directory scratch \
-      --pdf \
+      --pdf
 
 will convert all artboards in `canvas.svg` into the combined output file `canvas.pdf`, keeping the intermediate PDF files.
 
