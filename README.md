@@ -45,9 +45,9 @@ For example,
 
 will convert all artboards in `canvas.svg` into the combined output file `canvas.pdf`, keeping the intermediate PDF files.
 
-`concepts-artboards` requires a Ruby installation. It uses the [Ox](http://www.ohler.com/ox/) and [Slop](https://github.com/leejarvis/slop) gems; one will need to install these via the `gem install` command. Ox is a lightweight, fast XML library, and this script provides a good example of its use. Slop is a lightweight command line argument parser; see its documentation for the range of styles supported. `concepts-artboards` has no positional arguments; all arguments are named options, and can appear in any order.
+`concepts-artboards` requires a Ruby installation. It uses the [Ox](http://www.ohler.com/ox/) and [Slop](https://github.com/leejarvis/slop) gems; one will need to install these via the `gem install` command. Ox is a lightweight, fast XML library, and this script provides a good example of its use. Slop is a lightweight command line argument parser; see its documentation for the range of styles supported. `concepts-artboards` has no positional arguments; all arguments are named options, and can appear in any order. One typically calls `concepts-artboards` from a script, not by typing into a terminal, so this choice is easier to read and simplifies the code.
 
-`concepts-artboards` also calls two command line programs that can be installed on a Mac using [homebrew](https://brew.sh/): `svg2pdf` and `gs`.
+`concepts-artboards` also calls two open source command line programs that can be installed on a Mac using [homebrew](https://brew.sh/): `svg2pdf` and `gs`.
 
 The code attempts to degenerate gracefully. One is advised to use rectangles to define artboards, but any stroke will result in its bounding box. One is advised to arrange artboards in an orderly fashion, but the code will make reasonable choices for randomly placed artboards. A certain tolerance is necessary here, because users shouldn't be required to place rectangles exactly, and doing so is tricky in Concepts. Similarly, the `--quantum` option rounds artboard sizes, so they need not be exact.
 
