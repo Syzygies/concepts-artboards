@@ -60,7 +60,9 @@ The `Examples` directory contains a Concepts native file `Test.concept` that one
 
 ### Troubleshooting
 
-Concepts will export features to SVG that will choke `svg2pdf`, such as images. Trace over them so you look like an artist, and remove them.
+Concepts will export features to SVG that will choke `svg2pdf`, such as images. Trace over them so you look like an artist, and remove them. For another example, once one imports a PDF document into a canvas, that canvas can never again be used with `concepts-artboards`, unless you can find a replacement for `svg2pdf` that accepts the resulting SVG file. Always back up in Concepts format, or work with copies, before introducing anything that could choke `svg2pdf`.
+
+For an example, I prepared a take-home exam in Concepts, and used `concepts-artboards` to export PDF figures for inclusion in my typeset exam. I then imported the typeset PDF exam into this canvas, and copied my solutions onto the exam pages, to export a solution PDF. (This is the "official" workflow for creating a multipage PDF from Concepts.) Students were then puzzled by one of my figures, so I attempted to redraw the figure and again use `concepts-artboards` to export the figure. Even after deleting the PDF images from my canvas, `svg2pdf` would no longer accept the SVG exported by Concepts. One could probably figure out why, but I didn't. The moral is clear: I should have worked with a copy of my canvas.
 
 You might unlock your Artboard layer to tweak the position of a page, then forget to lock that layer again. Concepts often reverts to manual layer sorting. This can lead to unwanted content in your Artboard layers, and my code doesn't filter for this yet. In the worst case, you'll need to create a new layer, move your artboards to that layer, delete the artboard layer, and rename the new layer back to `Artboards`.
 ### Discussion
