@@ -60,7 +60,7 @@ The `Examples` directory contains a Concepts native file `Test.concept` that one
 
 ### Troubleshooting
 
-Concepts will export features to SVG that will choke `svg2pdf`, such as images. Trace over them so you look like an artist, and remove them. In general, if `svg2pdf` refuses to render pages from your canvas, try removing layers such as `Wire`.
+Concepts will export features to SVG that will choke `svg2pdf`, such as images. Trace over them so you look like an artist, and remove them. In general, if `svg2pdf` refuses to render pages from your canvas, try removing layers such as Wire using the `--remove` command line option.
 
 You might unlock your Artboard layer to tweak the position of a page, then forget to lock that layer again. Concepts often reverts to manual layer sorting. This can lead to unwanted content in your Artboard layers, and my code doesn't filter for this yet. In the worst case, you'll need to create a new layer, move your artboards to that layer, delete the artboard layer, and rename the new layer back to `Artboards`.
 ### Discussion
