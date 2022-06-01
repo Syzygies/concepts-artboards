@@ -28,6 +28,7 @@ There is a Reddit discussion of this script [here](https://www.reddit.com/r/Conc
 
         -a, --artboards  name of Artboards layer (default: Artboards)
         -r, --remove     other layers to remove from output
+        -n, --pages      number of pages to process
         -q, --quantum    points multiple for rounding artboards (default: 8)
 
 
